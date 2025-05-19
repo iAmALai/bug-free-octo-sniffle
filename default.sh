@@ -36,14 +36,9 @@ CLIP_MODELS=(
 )
 
 UNET_MODELS=(
-    "https://huggingface.co/Kijai/flux-fp8/resolve/main/flux1-dev-fp8.safetensors"
-    "https://civitai.com/api/download/models/1413133?type=Model&format=SafeTensor&size=full&fp=fp8"
 )
 
 LORA_MODELS=(
-    "https://huggingface.co/alimama-creative/FLUX.1-Turbo-Alpha/resolve/main/diffusion_pytorch_model.safetensors"
-    "https://civitai.com/models/639937?modelVersionId=715729"
-    "https://civitai.com/models/1551668?modelVersionId=1755780"
 )
 
 VAE_MODELS=(
@@ -72,12 +67,20 @@ function provisioning_start() {
 
     # Get licensed models if HF_TOKEN set & valid
     if provisioning_has_valid_hf_token; then
+        UNET_MODELS+=("https://huggingface.co/Kijai/flux-fp8/resolve/main/flux1-dev-fp8.safetensors")
         VAE_MODELS+=("https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors")
-        LORA_MODELS+=("https://huggingface.co/LieUr/OloxV1")")
+        LORA_MODELS+=("https://huggingface.co/LieUr/OloxV1")
+        LORA_MODELS+=("https://huggingface.co/alimama-creative/FLUX.1-Turbo-Alpha/resolve/main/diffusion_pytorch_model.safetensors")
     else
         UNET_MODELS+=("https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/flux1-schnell.safetensors")
         VAE_MODELS+=("https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors")
         sed -i 's/flux1-dev\.safetensors/flux1-schnell.safetensors/g' /opt/ComfyUI/web/scripts/defaultGraph.js
+    fi
+
+    if provisioning_has_valid_civitai_token; then
+        UNET_MODELS+=("https://civitai.com/api/download/models/1413133?type=Model&format=SafeTensor&size=full&fp=fp8")
+        LORA_MODELS+=("https://civitai.com/api/download/models/715729?type=Model&format=SafeTensor")
+        LORA_MODELS+=("https://civitai.com/api/download/models/1755780?type=Model&format=SafeTensor")
     fi
     
     provisioning_print_header
