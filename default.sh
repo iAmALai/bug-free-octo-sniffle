@@ -39,6 +39,7 @@ UNET_MODELS=(
 )
 
 LORA_MODELS=(
+    "https://civitai.com/models/639937?modelVersionId=715729"
 )
 
 VAE_MODELS=(
@@ -64,23 +65,29 @@ function provisioning_start() {
     fi
     source /opt/ai-dock/etc/environment.sh
     source /opt/ai-dock/bin/venv-set.sh comfyui
+    
 
     # Get licensed models if HF_TOKEN set & valid
     if provisioning_has_valid_hf_token; then
+        printf "Valid Hugging Face token detected. Proceeding with Hugging Face-specific provisioning...\n"
         UNET_MODELS+=("https://huggingface.co/Kijai/flux-fp8/resolve/main/flux1-dev-fp8.safetensors")
         VAE_MODELS+=("https://huggingface.co/black-forest-labs/FLUX.1-dev/resolve/main/ae.safetensors")
-        LORA_MODELS+=("https://huggingface.co/LieUr/OloxV1")
+        LORA_MODELS+=("https://huggingface.co/LieUr/OloxV1/resolve/main/olox_lora.safetensors")
         LORA_MODELS+=("https://huggingface.co/alimama-creative/FLUX.1-Turbo-Alpha/resolve/main/diffusion_pytorch_model.safetensors")
     else
+        printf "No valid Hugging Face token detected. Skipping Hugging Face-specific provisioning...\n"
         UNET_MODELS+=("https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/flux1-schnell.safetensors")
         VAE_MODELS+=("https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors")
         sed -i 's/flux1-dev\.safetensors/flux1-schnell.safetensors/g' /opt/ComfyUI/web/scripts/defaultGraph.js
     fi
 
     if provisioning_has_valid_civitai_token; then
+        printf "Valid Civitai token detected. Proceeding with Civitai-specific provisioning...\n"
         UNET_MODELS+=("https://civitai.com/api/download/models/1413133?type=Model&format=SafeTensor&size=full&fp=fp8")
-        LORA_MODELS+=("https://civitai.com/api/download/models/715729?type=Model&format=SafeTensor")
-        LORA_MODELS+=("https://civitai.com/api/download/models/1755780?type=Model&format=SafeTensor")
+        # LORA_MODELS+=("https://civitai.com/api/download/models/715729?type=Model&format=SafeTensor")
+        LORA_MODELS+=("https://civitai.com/models/1551668?modelVersionId=1755780") # which one works 
+    else
+        printf "No valid Civitai token detected. Skipping Civitai-specific provisioning...\n"
     fi
     
     provisioning_print_header
